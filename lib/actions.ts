@@ -292,7 +292,7 @@ export async function getDashboardData() {
       totalPlays: 0 // TODO: Implement play tracking
     },
     recentGames: recentGames as unknown as Game[],
-    popularCategories: categoriesWithCount.map(category => ({
+    popularCategories: categoriesWithCount.map((category: Category & { _count: { games: number } }) => ({
       ...category,
       gamesCount: category._count.games
     })) as unknown as (Category & { gamesCount: number })[]
@@ -466,8 +466,8 @@ export async function checkGamesExist(titles: string[]) {
       }
     })
 
-    const existingTitles = new Set(games.map(game => game.title))
-    const existingSlugs = new Set(games.map(game => game.slug))
+    const existingTitles = new Set(games.map((game: { title: string; slug: string }) => game.title))
+    const existingSlugs = new Set(games.map((game: { title: string; slug: string }) => game.slug))
 
     return titles.map(title => {
       const slug = slugify(title)

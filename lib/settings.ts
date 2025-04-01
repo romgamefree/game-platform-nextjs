@@ -57,13 +57,13 @@ export const getSettings = cache(async (page: number = 1): Promise<SettingsRespo
 
   // Convert to a key-value object
   const settingsMap = settings.reduce(
-    (acc, setting) => {
+    (acc: Record<SettingKey, string | boolean | number | object>, setting: Setting) => {
       let value: string | boolean | number | object = setting.value
 
       // Parse JSON values
       if (setting.type === "JSON") {
         try {
-          value = JSON.parse(value)
+          value = JSON.parse(setting.value)
         } catch (e) {
           console.error(`Failed to parse JSON setting: ${setting.key}`)
         }
