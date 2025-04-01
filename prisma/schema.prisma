@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  image       String?  // URL to category image
+  // SEO fields
+  metaTitle   String?
+  metaDescription String? @db.Text
+  games       Game[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Game {
+  id           Int      @id @default(autoincrement())
+  title        String
+  slug         String   @unique
+  description  String   @db.Text
+  instructions String?  @db.Text
+  thumbnail    String
+  embedUrl     String
+  featured     Boolean  @default(false)
+  published    Boolean  @default(false)
+  // SEO fields
+  metaTitle    String?
+  metaDescription String? @db.Text
+  keywords     String?
+  structuredData Json?
+  category     Category @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Setting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String   @db.Text
+  type      SettingType @default(TEXT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SettingType {
+  TEXT
+  TEXTAREA
+  IMAGE
+  BOOLEAN
+  COLOR
+  JSON
+}
+
