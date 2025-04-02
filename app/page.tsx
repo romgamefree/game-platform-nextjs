@@ -4,13 +4,25 @@ import Image from "next/image"
 import { getGames, getCategories } from "@/lib/data"
 import { GameCard } from "@/components/game-card"
 import { Button } from "@/components/ui/button"
-import { CategoryFilter } from "@/components/category-filter"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { AlertCircle, Gamepad2, Users, Trophy, Star, Sparkles, ArrowRight, Puzzle, Sword, Brain, Play, Heart, Clock, History, Zap, Gift } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import {
+  ChevronRight,
+  ChevronLeft,
+  Users2,
+  Swords,
+  Flower,
+  Car,
+  Gamepad,
+  CircleDot,
+  Bike,
+  SquareStack,
+  MousePointer,
+  Shirt,
+  DoorOpen,
+  Crosshair
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import type { Game } from "@/lib/types"
 
 export const metadata: Metadata = {
   title: "Home",
@@ -20,289 +32,455 @@ export const metadata: Metadata = {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { category?: string; error?: string }
+  searchParams: { category?: string }
 }) {
   const params = await Promise.resolve(searchParams)
   const categoryId = params?.category ? Number.parseInt(params.category) : undefined
-  const featuredGames = await getGames({ categoryId, featured: true, limit: 6 })
-  const popularGames = await getGames({ categoryId, limit: 4 })
-  const newGames = await getGames({ categoryId, limit: 4 })
-  const recentlyPlayed = await getGames({ categoryId, limit: 4 })
+
+  const [
+    sliderGames,
+    featuredGames,
+    newGames,
+    topRatedGames,
+    categories
+  ] = await Promise.all([
+    getGames({ limit: 40 }),
+    getGames({ categoryId, featured: true, limit: 40 }),
+    getGames({ categoryId, limit: 48 }),
+    getGames({ categoryId, limit: 48 }),
+    getCategories()
+  ])
+
+  // Get games for each category
+  const categoryGames = await Promise.all(
+    categories.slice(0, 12).map(category =>
+      getGames({ categoryId: category.id, limit: 12 })
+    )
+  )
 
   return (
-    <div className="space-y-16">
-      {/* Display access denied message if redirected from admin area */}
-      {params?.error === "access_denied" && (
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Access Denied</AlertTitle>
-          <AlertDescription>
-            You don't have permission to access the admin area. Please contact an administrator if you believe this is a mistake.
-          </AlertDescription>
-        </Alert>
-      )}
+    <div className="flex flex-col gap-8">
+      {/* Main Game Slider */}
+      <section className="containe mt-8">
+        <div className="flex flex-col gap-4">
+          {/* <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-bold">Discover Games</h2>
+              <p className="text-sm text-muted-foreground">Explore our curated collection of the most exciting online games</p>
+            </div>
+          </div> */}
+          <ScrollArea className="w-full">
+            <div className="flex space-x-6 pb-4">
+              {/* First Group */}
+              <div className="flex gap-4 shrink-0">
+                {/* Large game */}
+                <Link
+                  href={`/games/${sliderGames[0]?.slug}`}
+                  className="group relative w-[400px] aspect-square overflow-hidden rounded-lg 
+                            transition-all duration-500 ease-out hover:border-4 hover:border-blue-500
+                            hover:shadow-xl hover:shadow-blue-500/30 will-change-transform"
+                >
+                  <Image
+                    src={sliderGames[0]?.thumbnail || ""}
+                    alt={sliderGames[0]?.title || ""}
+                    fill
+                    className="object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 transition-all duration-500 group-hover:opacity-90" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 transform transition-all duration-500 ease-out group-hover:translate-y-[-10px]">
+                    <h3 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors duration-500">
+                      {sliderGames[0]?.title}
+                    </h3>
+                    <div className="mt-1 flex items-center gap-2 opacity-0 transform translate-y-2 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
+                      <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">Featured</span>
+                      <span className="text-xs text-white/80">4.8 ★</span>
+                    </div>
+                  </div>
+                </Link>
 
-      {/* Hero Section with Game Preview */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-primary/10 via-background to-background">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-20" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-        <div className="container relative py-12 md:py-20">
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="flex flex-col justify-center space-y-6">
-              <Badge variant="secondary" className="mb-4 animate-fade-in w-fit">
-                <Sparkles className="mr-2 h-4 w-4" />
-                Featured Game
-              </Badge>
-              <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50 animate-fade-in-up">
-                Play the Best Online Games
-              </h1>
-              <p className="text-lg text-muted-foreground md:text-xl animate-fade-in-up animation-delay-200">
-                Discover and play hundreds of free online games. No downloads, just fun!
+                {/* Grid of 4 small games */}
+                <div className="grid grid-cols-2 gap-4">
+                  {sliderGames.slice(1, 5).map((game) => (
+                    <Link
+                      key={game.id}
+                      href={`/games/${game.slug}`}
+                      className="group relative aspect-square w-[196px] overflow-hidden rounded-lg
+                                transition-all duration-500 ease-out hover:border-2 hover:border-blue-400
+                                hover:shadow-lg hover:shadow-blue-400/30 hover:scale-[1.03] will-change-transform"
+                    >
+                      <Image
+                        src={game.thumbnail}
+                        alt={game.title}
+                        fill
+                        className="object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 transition-all duration-500 group-hover:opacity-90" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 transform transition-all duration-500 ease-out group-hover:translate-y-[-6px]">
+                        <h3 className="text-sm font-semibold text-white group-hover:text-blue-300 transition-colors duration-500">{game.title}</h3>
+                        <div className="mt-1 flex items-center gap-2 opacity-0 transform translate-y-2 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
+                          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full">New</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Second Group */}
+              <div className="flex gap-4 shrink-0">
+                {/* Large game */}
+                <Link
+                  href={`/games/${sliderGames[5]?.slug}`}
+                  className="group relative aspect-square w-[400px] overflow-hidden rounded-lg
+                            transition-all duration-500 ease-out hover:border-4 hover:border-blue-500
+                            hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] will-change-transform"
+                >
+                  <Image
+                    src={sliderGames[5]?.thumbnail || ""}
+                    alt={sliderGames[5]?.title || ""}
+                    fill
+                    className="object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
+                    priority
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 transition-all duration-500 group-hover:opacity-90" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 transform transition-all duration-500 ease-out group-hover:translate-y-[-10px]">
+                    <h3 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors duration-500">
+                      {sliderGames[5]?.title}
+                    </h3>
+                    <div className="mt-1 flex items-center gap-2 opacity-0 transform translate-y-2 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
+                      <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">Featured</span>
+                      <span className="text-xs text-white/80">4.8 ★</span>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Grid of 4 small games */}
+                <div className="grid grid-cols-2 gap-4">
+                  {sliderGames.slice(6, 10).map((game) => (
+                    <Link
+                      key={game.id}
+                      href={`/games/${game.slug}`}
+                      className="group relative aspect-square w-[196px] overflow-hidden rounded-lg
+                                transition-all duration-500 ease-out hover:border-2 hover:border-blue-400
+                                hover:shadow-lg hover:shadow-blue-400/30 hover:scale-[1.03] will-change-transform"
+                    >
+                      <Image
+                        src={game.thumbnail}
+                        alt={game.title}
+                        fill
+                        className="object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 transition-all duration-500 group-hover:opacity-90" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 transform transition-all duration-500 ease-out group-hover:translate-y-[-6px]">
+                        <h3 className="text-sm font-semibold text-white group-hover:text-blue-300 transition-colors duration-500">{game.title}</h3>
+                        <div className="mt-1 flex items-center gap-2 opacity-0 transform translate-y-2 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
+                          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full">New</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
+      </section>
+
+      {/* Featured Games */}
+      <section className="container">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="bg-primary/20 text-primary text-xs font-medium px-2.5 py-0.5 rounded-full">FEATURED</span>
+                <h2 className="text-2xl font-bold">Featured Games</h2>
+              </div>
+              <p className="text-sm text-muted-foreground">Hand-picked games that you'll surely love</p>
+            </div>
+            <Button variant="ghost" asChild>
+              <Link href="/games?featured=true" className="gap-2">
+                View more
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+          <ScrollArea className="w-full">
+            <div className="flex space-x-4 pb-4">
+              {featuredGames.map((game: Game) => (
+                <Link
+                  key={game.id}
+                  href={`/games/${game.slug}`}
+                  className="group relative w-[220px] h-[320px] shrink-0 overflow-hidden rounded-xl bg-muted/50 ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:absolute before:inset-0 before:rounded-xl before:transition-all before:duration-500 hover:before:scale-105 before:border-2 before:border-transparent hover:before:border-[#4CAFFF] hover:before:shadow-[0_0_15px_rgba(76,175,255,0.5)] hover:before:animate-pulse before:bg-gradient-to-r before:from-transparent before:to-transparent hover:before:from-[#4CAFFF]/10 hover:before:to-[#9089FC]/10 after:absolute after:inset-[1px] after:rounded-xl after:transition-transform after:duration-500 group-hover:after:scale-105"
+                >
+                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+                  <Image
+                    src={game.thumbnail}
+                    alt={game.title}
+                    fill
+                    className="object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 z-20 p-6">
+                    <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-[#4CAFFF] transition-colors">{game.title}</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-white/80">Action, Adventure</span>
+                      <span className="h-1 w-1 rounded-full bg-white/80" />
+                      <span className="text-xs text-white/80">4.5 ★</span>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2">
+                      <div className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs text-white">
+                        Free to Play
+                      </div>
+                      <div className="rounded-full bg-[#4CAFFF]/20 text-[#4CAFFF] px-2.5 py-0.5 text-xs">
+                        Multiplayer
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
+      </section>
+
+      {/* Top Rated Games */}
+      <section className="container">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="bg-yellow-500/20 text-yellow-500 text-xs font-medium px-2.5 py-0.5 rounded-full">TRENDING</span>
+                <h2 className="text-2xl font-bold">Most Popular</h2>
+              </div>
+              <p className="text-sm text-muted-foreground">Games that players can't stop talking about</p>
+            </div>
+            <Button variant="ghost" asChild>
+              <Link href="/games?sort=popular" className="gap-2">
+                View more
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+          <ScrollArea className="w-full">
+            <div className="flex space-x-4 pb-4">
+              {topRatedGames.map((game: Game) => (
+                <Link
+                  key={game.id}
+                  href={`/games/${game.slug}`}
+                  className="relative aspect-[16/9] w-[300px] shrink-0 overflow-hidden rounded-lg"
+                >
+                  <Image
+                    src={game.thumbnail}
+                    alt={game.title}
+                    fill
+                    className="object-cover transition-transform hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="text-lg font-semibold text-white">{game.title}</h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
+      </section>
+
+      {/* Categories */}
+      <section className="container">
+        <div className="flex items-start gap-8">
+          <div className="w-80 shrink-0 space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="bg-blue-500/20 text-blue-500 text-xs font-medium px-2.5 py-0.5 rounded-full">EXPLORE</span>
+                <h2 className="text-2xl font-bold">Categories</h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Find games by your favorite category. From action to puzzle, we've got you covered.
               </p>
-              <div className="flex flex-col gap-4 sm:flex-row animate-fade-in-up animation-delay-400">
-                <Button asChild size="lg" className="h-12 px-8 group">
-                  <Link href="/games">
-                    Play Now
-                    <Play className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </div>
+            <Button variant="outline" asChild className="w-full group">
+              <Link href="/games" className="flex items-center justify-between">
+                <span>Browse all categories</span>
+                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col gap-6">
+              {/* First row of categories */}
+              <ScrollArea className="w-full">
+                <div className="flex space-x-4 pb-4">
+                  {categories.slice(0, Math.ceil(categories.length / 2)).map((category) => (
+                    <Link
+                      key={category.id}
+                      href={`/games?category=${category.id}`}
+                      className="group flex flex-col items-center gap-2 rounded-xl bg-muted/50 p-3 hover:bg-muted shrink-0 transition-colors"
+                    >
+                      <div className="relative aspect-square w-14 h-14 rounded-xl overflow-hidden bg-gradient-to-br from-blue-500/10 to-purple-500/10 p-0.5">
+                        <div className="relative h-full w-full rounded-[inherit] overflow-hidden">
+                          <Image
+                            src={category.image || `/categories/${category.slug}.jpg`}
+                            alt={category.name}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-110"
+                          />
+                        </div>
+                      </div>
+                      <div className="text-center w-20">
+                        <span className="text-sm font-medium line-clamp-1 group-hover:text-primary transition-colors">{category.name}</span>
+                        {category._count?.games && (
+                          <p className="text-[10px] text-muted-foreground">
+                            {category._count?.games} games
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <ScrollBar orientation="horizontal" className="hover:bg-muted" />
+              </ScrollArea>
+
+              {/* Second row of categories */}
+              <ScrollArea className="w-full">
+                <div className="flex space-x-4 pb-4">
+                  {categories.slice(Math.ceil(categories.length / 2)).map((category) => (
+                    <Link
+                      key={category.id}
+                      href={`/games?category=${category.id}`}
+                      className="group flex flex-col items-center gap-2 rounded-xl bg-muted/50 p-3 hover:bg-muted shrink-0 transition-colors"
+                    >
+                      <div className="relative aspect-square w-14 h-14 rounded-xl overflow-hidden bg-gradient-to-br from-blue-500/10 to-purple-500/10 p-0.5">
+                        <div className="relative h-full w-full rounded-[inherit] overflow-hidden">
+                          <Image
+                            src={category.image || `/categories/${category.slug}.jpg`}
+                            alt={category.name}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-110"
+                          />
+                        </div>
+                      </div>
+                      <div className="text-center w-20">
+                        <span className="text-sm font-medium line-clamp-1 group-hover:text-primary transition-colors">{category.name}</span>
+                        {category._count?.games && (
+                          <p className="text-[10px] text-muted-foreground">
+                            {category._count?.games} games
+                          </p>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <ScrollBar orientation="horizontal" className="hover:bg-muted" />
+              </ScrollArea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* New Games */}
+      <section className="container pb-8">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="bg-green-500/20 text-green-500 text-xs font-medium px-2.5 py-0.5 rounded-full">NEW</span>
+                <h2 className="text-2xl font-bold">Latest Games</h2>
+              </div>
+              <p className="text-sm text-muted-foreground">Fresh new games added to our collection</p>
+            </div>
+            <Button variant="ghost" asChild>
+              <Link href="/games?sort=newest" className="gap-2">
+                View more
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+          <ScrollArea className="w-full">
+            <div className="flex space-x-4 pb-4">
+              {newGames.map((game: Game) => (
+                <Link
+                  key={game.id}
+                  href={`/games/${game.slug}`}
+                  className="group relative aspect-[16/9] w-[280px] shrink-0 overflow-hidden rounded-lg ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:absolute before:inset-0 before:rounded-lg before:transition-all before:duration-500 hover:before:scale-105 before:border-2 before:border-transparent hover:before:border-[#4CAFFF] hover:before:shadow-[0_0_15px_rgba(76,175,255,0.5)] hover:before:animate-pulse before:bg-gradient-to-r before:from-transparent before:to-transparent hover:before:from-[#4CAFFF]/10 hover:before:to-[#9089FC]/10 after:absolute after:inset-[1px] after:rounded-lg after:transition-transform after:duration-500 group-hover:after:scale-105"
+                >
+                  <Image
+                    src={game.thumbnail}
+                    alt={game.title}
+                    fill
+                    loading="lazy"
+                    className="object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="text-lg font-semibold text-white group-hover:text-[#4CAFFF] transition-colors">{game.title}</h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
+      </section>
+
+      {/* Games by Categories */}
+      {categories.slice(0, 12).map((category, index) => (
+        <section key={category.id} className="container pb-8">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className={cn(
+                    "text-xs font-medium px-2.5 py-0.5 rounded-full uppercase",
+                    index % 6 === 0 && "bg-blue-500/20 text-blue-500",
+                    index % 6 === 1 && "bg-purple-500/20 text-purple-500",
+                    index % 6 === 2 && "bg-green-500/20 text-green-500",
+                    index % 6 === 3 && "bg-yellow-500/20 text-yellow-500",
+                    index % 6 === 4 && "bg-red-500/20 text-red-500",
+                    index % 6 === 5 && "bg-orange-500/20 text-orange-500",
+                  )}>{category.name}</span>
+                  <h2 className="text-2xl font-bold">{category.name} Games</h2>
+                </div>
+                <p className="text-sm text-muted-foreground">Best {category.name.toLowerCase()} games to play right now</p>
+              </div>
+              <Button variant="ghost" asChild>
+                <Link href={`/games?category=${category.id}`} className="gap-2">
+                  View more
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            <ScrollArea className="w-full">
+              <div className="flex space-x-4 pb-4">
+                {categoryGames[index].map((game: Game) => (
+                  <Link
+                    key={game.id}
+                    href={`/games/${game.slug}`}
+                    className="group relative aspect-[16/9] w-[280px] shrink-0 overflow-hidden rounded-lg ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:absolute before:inset-0 before:rounded-lg before:transition-all before:duration-500 hover:before:scale-105 before:border-2 before:border-transparent hover:before:border-[#4CAFFF] hover:before:shadow-[0_0_15px_rgba(76,175,255,0.5)] hover:before:animate-pulse before:bg-gradient-to-r before:from-transparent before:to-transparent hover:before:from-[#4CAFFF]/10 hover:before:to-[#9089FC]/10 after:absolute after:inset-[1px] after:rounded-lg after:transition-transform after:duration-500 group-hover:after:scale-105"
+                  >
+                    <Image
+                      src={game.thumbnail}
+                      alt={game.title}
+                      fill
+                      loading="lazy"
+                      className="object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <h3 className="text-lg font-semibold text-white group-hover:text-[#4CAFFF] transition-colors">{game.title}</h3>
+                    </div>
                   </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="h-12 px-8">
-                  <Link href="/auth/register">Create Account</Link>
-                </Button>
+                ))}
               </div>
-            </div>
-            <div className="relative aspect-video rounded-xl overflow-hidden group">
-              <Image
-                src="/game-preview.jpg"
-                alt="Featured Game Preview"
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-2xl font-bold text-white">Subway Surfers</h3>
-                  <Button size="sm" className="bg-primary hover:bg-primary/90">
-                    <Play className="h-4 w-4 mr-2" />
-                    Play Now
-                  </Button>
-                </div>
-                <div className="flex items-center gap-4 text-white/80">
-                  <div className="flex items-center gap-1">
-                    <Heart className="h-4 w-4" />
-                    <span>98%</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    <span>5 min</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    <span>1.2M plays</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
           </div>
-        </div>
-      </section>
-
-      {/* Trending Now Section */}
-      <section className="container">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-orange-500" />
-            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Trending Now</h2>
-          </div>
-          <Button variant="ghost" asChild className="group">
-            <Link href="/games">
-              View All
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
-        </div>
-        <ScrollArea className="w-full whitespace-nowrap rounded-md">
-          <div className="flex w-max space-x-4 p-4">
-            {popularGames.map((game) => (
-              <div key={game.id} className="w-[300px]">
-                <GameCard game={game} />
-              </div>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
-      </section>
-
-      {/* Recently Played Section */}
-      <section className="container">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <History className="h-5 w-5 text-primary" />
-            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Recently Played</h2>
-          </div>
-          <Button variant="ghost" asChild className="group">
-            <Link href="/games">
-              View All
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {recentlyPlayed.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
-        </div>
-      </section>
-
-      {/* Featured Games Section */}
-      <section className="container">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Featured Games</h2>
-            <p className="text-muted-foreground mt-2">Check out our handpicked selection of amazing games</p>
-          </div>
-          <CategoryFilter />
-        </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-8">
-          {featuredGames.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
-        </div>
-        <div className="mt-10 flex justify-center">
-          <Button asChild variant="outline" size="lg" className="group">
-            <Link href="/games">
-              View All Games
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* New Games Section */}
-      <section className="container">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <Gift className="h-5 w-5 text-green-500" />
-            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">New Games</h2>
-          </div>
-          <Button variant="ghost" asChild className="group">
-            <Link href="/games">
-              View All
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {newGames.map((game) => (
-            <div key={game.id} className="relative">
-              <Badge className="absolute top-2 right-2 z-10 bg-green-500 hover:bg-green-600">
-                <Gift className="h-3 w-3 mr-1" />
-                New
-              </Badge>
-              <GameCard game={game} />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Popular Categories Section */}
-      <section className="container pb-16">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Popular Categories</h2>
-            <p className="text-muted-foreground mt-2">Explore games by category</p>
-          </div>
-          <Button variant="ghost" asChild className="group">
-            <Link href="/games">
-              View All
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
-        </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-            <CardHeader className="p-0">
-              <div className="relative aspect-video">
-                <Image
-                  src="/categories/action.jpg"
-                  alt="Action Games"
-                  fill
-                  className="object-cover rounded-t-lg"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-t-lg" />
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sword className="h-5 w-5 text-white" />
-                    <CardTitle className="text-white">Action Games</CardTitle>
-                  </div>
-                  <CardDescription className="text-white/80">Fast-paced games with exciting gameplay</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-          <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-            <CardHeader className="p-0">
-              <div className="relative aspect-video">
-                <Image
-                  src="/categories/puzzle.jpg"
-                  alt="Puzzle Games"
-                  fill
-                  className="object-cover rounded-t-lg"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-t-lg" />
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Puzzle className="h-5 w-5 text-white" />
-                    <CardTitle className="text-white">Puzzle Games</CardTitle>
-                  </div>
-                  <CardDescription className="text-white/80">Challenge your mind with brain teasers</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-          <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-            <CardHeader className="p-0">
-              <div className="relative aspect-video">
-                <Image
-                  src="/categories/strategy.jpg"
-                  alt="Strategy Games"
-                  fill
-                  className="object-cover rounded-t-lg"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-t-lg" />
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Brain className="h-5 w-5 text-white" />
-                    <CardTitle className="text-white">Strategy Games</CardTitle>
-                  </div>
-                  <CardDescription className="text-white/80">Think and plan your way to victory</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-          <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-            <CardHeader className="p-0">
-              <div className="relative aspect-video">
-                <Image
-                  src="/categories/racing.jpg"
-                  alt="Racing Games"
-                  fill
-                  className="object-cover rounded-t-lg"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-t-lg" />
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Trophy className="h-5 w-5 text-white" />
-                    <CardTitle className="text-white">Racing Games</CardTitle>
-                  </div>
-                  <CardDescription className="text-white/80">Speed and adrenaline in every race</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-        </div>
-      </section>
+        </section>
+      ))}
     </div>
   )
 }

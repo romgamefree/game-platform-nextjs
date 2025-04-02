@@ -72,7 +72,7 @@ export async function getRelatedGames(gameId: number, categoryId: number): Promi
     orderBy: {
       createdAt: "desc",
     },
-    take: 3,
+    take: 18,
   })
 
   return games as unknown as Game[]

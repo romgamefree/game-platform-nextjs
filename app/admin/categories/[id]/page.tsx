@@ -15,13 +15,15 @@ export const metadata: Metadata = {
 }
 
 export default async function EditCategoryPage({ params }: EditCategoryPageProps) {
-  const id = Number.parseInt(params.id)
+  const { id } = await params;
 
-  if (isNaN(id)) {
+  const parsedId = Number.parseInt(id);
+  
+  if (isNaN(parsedId)) {
     notFound()
   }
 
-  const category = await getCategoryById(id)
+  const category = await getCategoryById(parsedId)
 
   if (!category) {
     notFound()

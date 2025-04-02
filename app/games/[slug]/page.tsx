@@ -4,8 +4,10 @@ import { getGameBySlug, getRelatedGames } from "@/lib/data"
 import { GameEmbed } from "@/components/game-embed"
 import { GameCard } from "@/components/game-card"
 import { Button } from "@/components/ui/button"
-import { Share } from "lucide-react"
+import { Share, Maximize2 } from "lucide-react"
 import { getSettings, getSetting } from "@/lib/settings"
+import { FullscreenButton } from "../../components/fullscreen-button"
+import { ShareButton } from "../../components/share-button"
 
 type Props = {
   params: { slug: string }
@@ -94,36 +96,92 @@ export default async function GamePage({ params }: Props) {
     <div className="container py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <h1 className="text-3xl font-bold mb-4">{game.title}</h1>
-
-          <div className="aspect-video relative rounded-lg overflow-hidden mb-6">
-            <GameEmbed embedUrl={game.embedUrl} title={game.title} />
-          </div>
-
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">{game.category.name}</span>
+          {/* Game Embed */}
+          <div className="space-y-4">
+            <div className="aspect-video relative rounded-lg overflow-hidden">
+              <GameEmbed embedUrl={game.embedUrl} title={game.title} />
             </div>
-            <Button variant="outline" size="sm">
-              <Share className="h-4 w-4 mr-2" />
-              Share
-            </Button>
           </div>
 
-          <div className="prose max-w-none dark:prose-invert">
-            <h2>About this game</h2>
-            <p>{game.description}</p>
-            <h2>How to play</h2>
-            <p>{game.instructions}</p>
+          {/* Game Controls */}
+          <div className="flex justify-between gap-2 mt-4 mb-8">
+            <h1 className="text-2xl font-bold">{game.title}</h1>
+            <div className="flex gap-2">
+              <ShareButton 
+                title={game.title}
+                url={`${siteUrl}/games/${game.slug}`}
+                image={game.thumbnail}
+                description={game.description}
+              />
+              <FullscreenButton />
+            </div>
+          </div>
+
+          {/* Horizontal Ad below game */}
+          <div className="w-full h-[90px] bg-muted/50 rounded-lg mb-8 flex items-center justify-center">
+            <span className="text-muted-foreground text-sm">Advertisement</span>
+          </div>
+
+          {/* Game Info and Ads Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Game Info Column */}
+            <div className="lg:col-span-2 space-y-8">
+              <div className="prose max-w-none dark:prose-invert">
+                <div className="bg-muted/50 rounded-lg p-6">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+                    <a href="/" className="hover:text-primary">Home</a>
+                    <span>•</span>
+                    <a href={`/games?category=${game.category.id}`} className="hover:text-primary">{game.category.name}</a>
+                    <span>•</span>
+                    <span className="text-foreground">{game.title}</span>
+                  </div>
+                  <h2 className="text-xl font-semibold mb-3">About this game</h2>
+                  <p className="text-muted-foreground">{game.description}</p>
+                </div>
+              </div>
+
+              <div className="prose max-w-none dark:prose-invert">
+                <div className="bg-muted/50 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold mb-3">How to play</h2>
+                  <p className="text-muted-foreground">{game.instructions}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Ads Column */}
+            <div className="space-y-8">
+              {/* Small Ad */}
+              <div className="aspect-[300/250] bg-muted/50 rounded-lg flex items-center justify-center">
+                <span className="text-muted-foreground text-sm">Advertisement</span>
+              </div>
+
+              {/* Large Ad */}
+              <div className="aspect-[300/600] bg-muted/50 rounded-lg flex items-center justify-center">
+                <span className="text-muted-foreground text-sm">Advertisement</span>
+              </div>
+            </div>
           </div>
         </div>
 
         <div>
-          <h2 className="text-xl font-bold mb-4">Related Games</h2>
-          <div className="grid grid-cols-1 gap-4">
-            {relatedGames.map((relatedGame) => (
-              <GameCard key={relatedGame.id} game={relatedGame} variant="horizontal" />
-            ))}
+          <div className="space-y-4">
+            {/* Ad Banner */}
+            <div className="aspect-[4/3] bg-muted/50 rounded-lg flex items-center justify-center">
+              <span className="text-muted-foreground text-sm">Advertisement</span>
+            </div>
+
+            {/* Related Games */}
+            <div className="grid grid-cols-2 gap-4">
+              {relatedGames.map((relatedGame) => (
+                <div key={relatedGame.id} className="aspect-video relative rounded-lg overflow-hidden">
+                  <img
+                    src={relatedGame.thumbnail}
+                    alt={relatedGame.title}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
