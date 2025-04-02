@@ -63,125 +63,77 @@ export default async function Home({
       {/* Main Game Slider */}
       <section className="containe mt-8">
         <div className="flex flex-col gap-4">
-          {/* <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold">Discover Games</h2>
+              <h2 className="text-2xl font-bold">Welcome to Discover Games</h2>
               <p className="text-sm text-muted-foreground">Explore our curated collection of the most exciting online games</p>
             </div>
-          </div> */}
+          </div>
           <ScrollArea className="w-full">
             <div className="flex space-x-6 pb-4">
-              {/* First Group */}
-              <div className="flex gap-4 shrink-0">
-                {/* Large game */}
-                <Link
-                  href={`/games/${sliderGames[0]?.slug}`}
-                  className="group relative w-[400px] aspect-square overflow-hidden rounded-lg 
-                            transition-all duration-500 ease-out hover:border-4 hover:border-blue-500
-                            hover:shadow-xl hover:shadow-blue-500/30 will-change-transform"
-                >
-                  <Image
-                    src={sliderGames[0]?.thumbnail || ""}
-                    alt={sliderGames[0]?.title || ""}
-                    fill
-                    className="object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 transition-all duration-500 group-hover:opacity-90" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 transform transition-all duration-500 ease-out group-hover:translate-y-[-10px]">
-                    <h3 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors duration-500">
-                      {sliderGames[0]?.title}
-                    </h3>
-                    <div className="mt-1 flex items-center gap-2 opacity-0 transform translate-y-2 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
-                      <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">Featured</span>
-                      <span className="text-xs text-white/80">4.8 ★</span>
-                    </div>
-                  </div>
-                </Link>
+              {Array.from({ length: Math.ceil(sliderGames.length / 5) }).map((_, groupIndex) => {
+                const startIndex = groupIndex * 5;
+                const groupGames = sliderGames.slice(startIndex, startIndex + 5);
+                const largeGame = groupGames[0];
+                const smallGames = groupGames.slice(1, 5);
 
-                {/* Grid of 4 small games */}
-                <div className="grid grid-cols-2 gap-4">
-                  {sliderGames.slice(1, 5).map((game) => (
+                return (
+                  <div key={groupIndex} className="flex gap-4 shrink-0">
+                    {/* Large game */}
                     <Link
-                      key={game.id}
-                      href={`/games/${game.slug}`}
-                      className="group relative aspect-square w-[196px] overflow-hidden rounded-lg
-                                transition-all duration-500 ease-out hover:border-2 hover:border-blue-400
-                                hover:shadow-lg hover:shadow-blue-400/30 hover:scale-[1.03] will-change-transform"
+                      href={`/games/${largeGame?.slug}`}
+                      className="group relative w-[400px] aspect-square overflow-hidden rounded-lg 
+                                transition-all duration-300 hover:shadow-lg"
                     >
                       <Image
-                        src={game.thumbnail}
-                        alt={game.title}
+                        src={largeGame?.thumbnail || ""}
+                        alt={largeGame?.title || ""}
                         fill
-                        className="object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        priority
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 transition-all duration-500 group-hover:opacity-90" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4 transform transition-all duration-500 ease-out group-hover:translate-y-[-6px]">
-                        <h3 className="text-sm font-semibold text-white group-hover:text-blue-300 transition-colors duration-500">{game.title}</h3>
-                        <div className="mt-1 flex items-center gap-2 opacity-0 transform translate-y-2 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
-                          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full">New</span>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 className="text-xl font-semibold text-white">
+                          {largeGame?.title}
+                        </h3>
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="text-xs bg-primary/20 text-white px-2 py-0.5 rounded-full">Featured</span>
+                          <span className="text-xs text-white/80">4.8 ★</span>
                         </div>
                       </div>
+                      <div className="absolute inset-0 border-2 border-transparent transition-colors duration-300 group-hover:border-primary rounded-lg" />
                     </Link>
-                  ))}
-                </div>
-              </div>
 
-              {/* Second Group */}
-              <div className="flex gap-4 shrink-0">
-                {/* Large game */}
-                <Link
-                  href={`/games/${sliderGames[5]?.slug}`}
-                  className="group relative aspect-square w-[400px] overflow-hidden rounded-lg
-                            transition-all duration-500 ease-out hover:border-4 hover:border-blue-500
-                            hover:shadow-xl hover:shadow-blue-500/30 hover:scale-[1.02] will-change-transform"
-                >
-                  <Image
-                    src={sliderGames[5]?.thumbnail || ""}
-                    alt={sliderGames[5]?.title || ""}
-                    fill
-                    className="object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 transition-all duration-500 group-hover:opacity-90" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 transform transition-all duration-500 ease-out group-hover:translate-y-[-10px]">
-                    <h3 className="text-xl font-semibold text-white group-hover:text-blue-300 transition-colors duration-500">
-                      {sliderGames[5]?.title}
-                    </h3>
-                    <div className="mt-1 flex items-center gap-2 opacity-0 transform translate-y-2 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
-                      <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full">Featured</span>
-                      <span className="text-xs text-white/80">4.8 ★</span>
+                    {/* Grid of 4 small games */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {smallGames.map((game) => (
+                        <Link
+                          key={game.id}
+                          href={`/games/${game.slug}`}
+                          className="group relative aspect-square w-[196px] overflow-hidden rounded-lg
+                                    transition-all duration-300 hover:shadow-lg"
+                        >
+                          <Image
+                            src={game.thumbnail}
+                            alt={game.title}
+                            fill
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                          <div className="absolute bottom-0 left-0 right-0 p-4">
+                            <h3 className="text-sm font-semibold text-white">{game.title}</h3>
+                            <div className="mt-1 flex items-center gap-2">
+                              <span className="text-[10px] bg-primary/20 text-white px-1.5 py-0.5 rounded-full">New</span>
+                            </div>
+                          </div>
+                          <div className="absolute inset-0 border-2 border-transparent transition-colors duration-300 group-hover:border-primary rounded-lg" />
+                        </Link>
+                      ))}
                     </div>
                   </div>
-                </Link>
-
-                {/* Grid of 4 small games */}
-                <div className="grid grid-cols-2 gap-4">
-                  {sliderGames.slice(6, 10).map((game) => (
-                    <Link
-                      key={game.id}
-                      href={`/games/${game.slug}`}
-                      className="group relative aspect-square w-[196px] overflow-hidden rounded-lg
-                                transition-all duration-500 ease-out hover:border-2 hover:border-blue-400
-                                hover:shadow-lg hover:shadow-blue-400/30 hover:scale-[1.03] will-change-transform"
-                    >
-                      <Image
-                        src={game.thumbnail}
-                        alt={game.title}
-                        fill
-                        className="object-cover transition-all duration-700 ease-out group-hover:scale-110 group-hover:brightness-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-80 transition-all duration-500 group-hover:opacity-90" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4 transform transition-all duration-500 ease-out group-hover:translate-y-[-6px]">
-                        <h3 className="text-sm font-semibold text-white group-hover:text-blue-300 transition-colors duration-500">{game.title}</h3>
-                        <div className="mt-1 flex items-center gap-2 opacity-0 transform translate-y-2 transition-all duration-500 delay-100 group-hover:opacity-100 group-hover:translate-y-0">
-                          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded-full">New</span>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
+                );
+              })}
             </div>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
@@ -212,17 +164,17 @@ export default async function Home({
                 <Link
                   key={game.id}
                   href={`/games/${game.slug}`}
-                  className="group relative w-[220px] h-[320px] shrink-0 overflow-hidden rounded-xl bg-muted/50 ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:absolute before:inset-0 before:rounded-xl before:transition-all before:duration-500 hover:before:scale-105 before:border-2 before:border-transparent hover:before:border-[#4CAFFF] hover:before:shadow-[0_0_15px_rgba(76,175,255,0.5)] hover:before:animate-pulse before:bg-gradient-to-r before:from-transparent before:to-transparent hover:before:from-[#4CAFFF]/10 hover:before:to-[#9089FC]/10 after:absolute after:inset-[1px] after:rounded-xl after:transition-transform after:duration-500 group-hover:after:scale-105"
+                  className="group relative w-[220px] h-[320px] shrink-0 overflow-hidden rounded-xl transition-all duration-300 hover:shadow-lg"
                 >
-                  <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
                   <Image
                     src={game.thumbnail}
                     alt={game.title}
                     fill
-                    className="object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-x-0 bottom-0 z-20 p-6">
-                    <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-[#4CAFFF] transition-colors">{game.title}</h3>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="absolute inset-x-0 bottom-0 p-6">
+                    <h3 className="text-xl font-semibold text-white mb-2">{game.title}</h3>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-white/80">Action, Adventure</span>
                       <span className="h-1 w-1 rounded-full bg-white/80" />
@@ -232,11 +184,12 @@ export default async function Home({
                       <div className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs text-white">
                         Free to Play
                       </div>
-                      <div className="rounded-full bg-[#4CAFFF]/20 text-[#4CAFFF] px-2.5 py-0.5 text-xs">
+                      <div className="rounded-full bg-primary/20 text-primary px-2.5 py-0.5 text-xs">
                         Multiplayer
                       </div>
                     </div>
                   </div>
+                  <div className="absolute inset-0 border-2 border-transparent transition-colors duration-300 group-hover:border-primary rounded-xl" />
                 </Link>
               ))}
             </div>
@@ -269,18 +222,19 @@ export default async function Home({
                 <Link
                   key={game.id}
                   href={`/games/${game.slug}`}
-                  className="relative aspect-[16/9] w-[300px] shrink-0 overflow-hidden rounded-lg"
+                  className="group relative aspect-[16/9] w-[300px] shrink-0 overflow-hidden rounded-lg transition-all duration-300 hover:shadow-lg"
                 >
                   <Image
                     src={game.thumbnail}
                     alt={game.title}
                     fill
-                    className="object-cover transition-transform hover:scale-105"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <h3 className="text-lg font-semibold text-white">{game.title}</h3>
                   </div>
+                  <div className="absolute inset-0 border-2 border-transparent transition-colors duration-300 group-hover:border-primary rounded-lg" />
                 </Link>
               ))}
             </div>
@@ -406,19 +360,20 @@ export default async function Home({
                 <Link
                   key={game.id}
                   href={`/games/${game.slug}`}
-                  className="group relative aspect-[16/9] w-[280px] shrink-0 overflow-hidden rounded-lg ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:absolute before:inset-0 before:rounded-lg before:transition-all before:duration-500 hover:before:scale-105 before:border-2 before:border-transparent hover:before:border-[#4CAFFF] hover:before:shadow-[0_0_15px_rgba(76,175,255,0.5)] hover:before:animate-pulse before:bg-gradient-to-r before:from-transparent before:to-transparent hover:before:from-[#4CAFFF]/10 hover:before:to-[#9089FC]/10 after:absolute after:inset-[1px] after:rounded-lg after:transition-transform after:duration-500 group-hover:after:scale-105"
+                  className="group relative aspect-[16/9] w-[280px] shrink-0 overflow-hidden rounded-lg transition-all duration-300 hover:shadow-lg"
                 >
                   <Image
                     src={game.thumbnail}
                     alt={game.title}
                     fill
                     loading="lazy"
-                    className="object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-110"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-lg font-semibold text-white group-hover:text-[#4CAFFF] transition-colors">{game.title}</h3>
+                    <h3 className="text-lg font-semibold text-white">{game.title}</h3>
                   </div>
+                  <div className="absolute inset-0 border-2 border-transparent transition-colors duration-300 group-hover:border-primary rounded-lg" />
                 </Link>
               ))}
             </div>
@@ -460,19 +415,20 @@ export default async function Home({
                   <Link
                     key={game.id}
                     href={`/games/${game.slug}`}
-                    className="group relative aspect-[16/9] w-[280px] shrink-0 overflow-hidden rounded-lg ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 before:absolute before:inset-0 before:rounded-lg before:transition-all before:duration-500 hover:before:scale-105 before:border-2 before:border-transparent hover:before:border-[#4CAFFF] hover:before:shadow-[0_0_15px_rgba(76,175,255,0.5)] hover:before:animate-pulse before:bg-gradient-to-r before:from-transparent before:to-transparent hover:before:from-[#4CAFFF]/10 hover:before:to-[#9089FC]/10 after:absolute after:inset-[1px] after:rounded-lg after:transition-transform after:duration-500 group-hover:after:scale-105"
+                    className="group relative aspect-[16/9] w-[280px] shrink-0 overflow-hidden rounded-lg transition-all duration-300 hover:shadow-lg"
                   >
                     <Image
                       src={game.thumbnail}
                       alt={game.title}
                       fill
                       loading="lazy"
-                      className="object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-110"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                     <div className="absolute bottom-0 left-0 right-0 p-4">
-                      <h3 className="text-lg font-semibold text-white group-hover:text-[#4CAFFF] transition-colors">{game.title}</h3>
+                      <h3 className="text-lg font-semibold text-white">{game.title}</h3>
                     </div>
+                    <div className="absolute inset-0 border-2 border-transparent transition-colors duration-300 group-hover:border-primary rounded-lg" />
                   </Link>
                 ))}
               </div>

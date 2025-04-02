@@ -479,3 +479,58 @@ export async function checkGamesExist(titles: string[]) {
   }
 }
 
+export async function getPaginatedGames({ 
+  categoryId,
+  search,
+  page = 1, 
+  limit = 10,
+  featured = false
+}: {
+  categoryId?: number
+  search?: string
+  page?: number
+  limit?: number
+  featured?: boolean
+} = {}) {
+  try {
+    const skip = (page - 1) * limit
+
+    const where = {
+      ...(categoryId && { categoryId }),
+      ...(search && {
+        OR: [
+          { title: { contains: search, mode: "insensitive" } },
+          { description: { contains: search, mode: "insensitive" } }
+        ]
+      }),
+      ...(featured && { featured: true })
+    }
+
+    const [games, total] = await Promise.all([
+      db.game.findMany({
+        where,
+        include: {
+          category: true
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" }
+      }),
+      db.game.count({ where })
+    ])
+
+    const totalPages = Math.ceil(total / limit)
+
+    return {
+      games,
+      total,
+      page,
+      totalPages,
+      limit
+    }
+  } catch (error) {
+    console.error("Error getting games:", error)
+    throw error
+  }
+}
+

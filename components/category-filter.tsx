@@ -48,6 +48,7 @@ export function CategoryFilter() {
 
                   const params = new URLSearchParams(searchParams)
                   params.delete("category")
+                  params.delete("page")
                   router.push(`?${params.toString()}`)
                 }}
               >
@@ -63,6 +64,7 @@ export function CategoryFilter() {
 
                     const params = new URLSearchParams(searchParams)
                     params.set("category", category.id.toString())
+                    params.delete("page")
                     router.push(`?${params.toString()}`)
                   }}
                 >

@@ -8,6 +8,8 @@ import { Share, Maximize2 } from "lucide-react"
 import { getSettings, getSetting } from "@/lib/settings"
 import { FullscreenButton } from "../../components/fullscreen-button"
 import { ShareButton } from "../../components/share-button"
+import Link from "next/link"
+import Image from "next/image"
 
 type Props = {
   params: { slug: string }
@@ -118,8 +120,13 @@ export default async function GamePage({ params }: Props) {
           </div>
 
           {/* Horizontal Ad below game */}
-          <div className="w-full h-[90px] bg-muted/50 rounded-lg mb-8 flex items-center justify-center">
-            <span className="text-muted-foreground text-sm">Advertisement</span>
+          <div className="relative w-full h-[90px] bg-muted/50 rounded-lg mb-8">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-background px-2 text-xs text-muted-foreground">
+              Advertisement
+            </div>
+            <div className="w-full h-full flex items-center justify-center">
+              {/* Google AdSense will be placed here */}
+            </div>
           </div>
 
           {/* Game Info and Ads Layout */}
@@ -151,13 +158,23 @@ export default async function GamePage({ params }: Props) {
             {/* Right Ads Column */}
             <div className="space-y-8">
               {/* Small Ad */}
-              <div className="aspect-[300/250] bg-muted/50 rounded-lg flex items-center justify-center">
-                <span className="text-muted-foreground text-sm">Advertisement</span>
+              <div className="relative aspect-[300/250] bg-muted/50 rounded-lg">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-background px-2 text-xs text-muted-foreground">
+                  Advertisement
+                </div>
+                <div className="w-full h-full flex items-center justify-center">
+                  {/* Google AdSense will be placed here */}
+                </div>
               </div>
 
               {/* Large Ad */}
-              <div className="aspect-[300/600] bg-muted/50 rounded-lg flex items-center justify-center">
-                <span className="text-muted-foreground text-sm">Advertisement</span>
+              <div className="relative aspect-[300/600] bg-muted/50 rounded-lg">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-background px-2 text-xs text-muted-foreground">
+                  Advertisement
+                </div>
+                <div className="w-full h-full flex items-center justify-center">
+                  {/* Google AdSense will be placed here */}
+                </div>
               </div>
             </div>
           </div>
@@ -166,20 +183,35 @@ export default async function GamePage({ params }: Props) {
         <div>
           <div className="space-y-4">
             {/* Ad Banner */}
-            <div className="aspect-[4/3] bg-muted/50 rounded-lg flex items-center justify-center">
-              <span className="text-muted-foreground text-sm">Advertisement</span>
+            <div className="relative aspect-[4/3] bg-muted/50 rounded-lg">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-background px-2 text-xs text-muted-foreground">
+                Advertisement
+              </div>
+              <div className="w-full h-full flex items-center justify-center">
+                {/* Google AdSense will be placed here */}
+              </div>
             </div>
 
             {/* Related Games */}
             <div className="grid grid-cols-2 gap-4">
               {relatedGames.map((relatedGame) => (
-                <div key={relatedGame.id} className="aspect-video relative rounded-lg overflow-hidden">
-                  <img
+                <Link
+                  key={relatedGame.id}
+                  href={`/games/${relatedGame.slug}`}
+                  className="group relative aspect-video overflow-hidden rounded-lg transition-all duration-300 hover:shadow-lg"
+                >
+                  <Image
                     src={relatedGame.thumbnail}
                     alt={relatedGame.title}
-                    className="object-cover w-full h-full"
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="absolute bottom-0 left-0 right-0 p-2">
+                    <h3 className="text-sm font-medium text-white truncate">{relatedGame.title}</h3>
+                  </div>
+                  <div className="absolute inset-0 border-2 border-transparent transition-colors duration-300 group-hover:border-primary rounded-lg" />
+                </Link>
               ))}
             </div>
           </div>
